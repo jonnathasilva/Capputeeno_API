@@ -17,4 +17,42 @@ router.get("/:id", async (req, res) => {
   return res.status(200).json(product);
 });
 
+router.get("/find/:search", async (req, res) => {
+  const product = await Product.find();
+
+  const filterByTitle = product.filter((e) =>
+    e.title.toLowerCase().includes(req.params.search.toLowerCase())
+  );
+
+  const filterByDescription = product.filter((e) =>
+    e.description.toLowerCase().includes(req.params.search.toLowerCase())
+  );
+
+  const filterByPrice = product.filter((e) => e.price === req.params.search);
+
+  if (filterByTitle.length > 0) {
+    return res.status(200).json(filterByTitle);
+  }
+
+  if (filterByDescription.length > 0) {
+    return res.status(200).json(filterByDescription);
+  }
+
+  return res.status(200).json(filterByPrice);
+});
+
+// router.get("/page/:page", async (req, res) => {
+//   const product = await Product.find();
+
+//   const itensPerPage = 12;
+//   const currentPage = req.params.page;
+
+//   const page = Math.ceil(product.length / itensPerPage);
+//   const startIndex = currentPage * itensPerPage;
+//   const endIndex = startIndex + itensPerPage;
+//   const currentItens = product.slice(startIndex, endIndex);
+
+//   console.log(currentItens);
+// });
+
 export default router;
