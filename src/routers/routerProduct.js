@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
   return res.status(200).json(product);
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/product/:id", async (req, res) => {
   const id = req.params.id;
 
   const product = await Product.findOne({ _id: id });
@@ -17,18 +17,22 @@ router.get("/:id", async (req, res) => {
   return res.status(200).json(product);
 });
 
-router.get("/find/:search", async (req, res) => {
+router.get("/search", async (req, res) => {
   const product = await Product.find();
 
+  if (!req.query.q) {
+    return res.status(200).json(product);
+  }
+
   const filterByTitle = product.filter((e) =>
-    e.title.toLowerCase().includes(req.params.search.toLowerCase())
+    e.title.toLowerCase().includes(req.query.q.toLowerCase())
   );
 
   const filterByDescription = product.filter((e) =>
-    e.description.toLowerCase().includes(req.params.search.toLowerCase())
+    e.description.toLowerCase().includes(req.query.q.toLowerCase())
   );
 
-  const filterByPrice = product.filter((e) => e.price === req.params.search);
+  const filterByPrice = product.filter((e) => e.price === req.query.q);
 
   if (filterByTitle.length > 0) {
     return res.status(200).json(filterByTitle);
