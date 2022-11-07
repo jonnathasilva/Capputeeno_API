@@ -4,9 +4,28 @@ import { Product } from "../models/Product.js";
 const router = Router();
 
 router.get("/", async (req, res) => {
-  const product = await Product.find();
+  let { limit, offset } = req.query;
 
-  return res.status(200).json(product);
+  limit = Number(limit);
+  offset = Number(offset);
+
+  if (!limit) {
+    limit = 12;
+  }
+
+  if (!offset) {
+    offset = 0;
+  }
+
+  const count = await Product.countDocuments();
+  const product = await Product.find()
+    .sort({ _id: -1 })
+    .skip(offset)
+    .limit(limit);
+
+  const page = Math.ceil(Array(count).length / limit);
+
+  return res.status(200).json({ currentItens: product, page });
 });
 
 router.get("/product/:id", async (req, res) => {
@@ -18,45 +37,28 @@ router.get("/product/:id", async (req, res) => {
 });
 
 router.get("/search", async (req, res) => {
-  const product = await Product.find();
+  let { limit, offset } = req.query;
 
+  limit = Number(limit);
+  offset = Number(offset);
+
+  if (!limit) {
+    limit = 12;
+  }
+
+  if (!offset) {
+    offset = 0;
+  }
   if (!req.query.q) {
     return res.status(200).json(product);
   }
 
-  const filterByTitle = product.filter((e) =>
-    e.title.toLowerCase().includes(req.query.q.toLowerCase())
-  );
+  const count = await Product.countDocuments();
+  const product = await Product.find().sort({ _id: -1 });
 
-  const filterByDescription = product.filter((e) =>
-    e.description.toLowerCase().includes(req.query.q.toLowerCase())
-  );
-
-  const filterByPrice = product.filter((e) => e.price === req.query.q);
-
-  if (filterByTitle.length > 0) {
-    return res.status(200).json(filterByTitle);
-  }
-
-  if (filterByDescription.length > 0) {
-    return res.status(200).json(filterByDescription);
-  }
+  const page = Math.ceil(Array(count).length / limit);
 
   return res.status(200).json(filterByPrice);
 });
-
-// router.get("/page/:page", async (req, res) => {
-//   const product = await Product.find();
-
-//   const itensPerPage = 12;
-//   const currentPage = req.params.page;
-
-//   const page = Math.ceil(product.length / itensPerPage);
-//   const startIndex = currentPage * itensPerPage;
-//   const endIndex = startIndex + itensPerPage;
-//   const currentItens = product.slice(startIndex, endIndex);
-
-//   console.log(currentItens);
-// });
 
 export default router;
