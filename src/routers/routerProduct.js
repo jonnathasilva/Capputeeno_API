@@ -37,7 +37,7 @@ router.get("/product/:id", async (req, res) => {
 });
 
 router.get("/search", async (req, res) => {
-  let { limit, offset } = req.query;
+  let { limit, offset, q } = req.query;
 
   limit = Number(limit);
   offset = Number(offset);
@@ -49,16 +49,26 @@ router.get("/search", async (req, res) => {
   if (!offset) {
     offset = 0;
   }
-  if (!req.query.q) {
-    return res.status(200).json(product);
+
+  if (!q) {
+    q = "";
   }
 
   const count = await Product.countDocuments();
-  const product = await Product.find().sort({ _id: -1 });
+  const product = await Product.find({
+    $or: [
+      { title: { $regex: q } },
+      { description: { $regex: q } },
+      { price: q },
+    ],
+  })
+    .sort({ _id: -1 })
+    .skip(offset)
+    .limit(limit);
 
   const page = Math.ceil(Array(count).length / limit);
 
-  return res.status(200).json(filterByPrice);
+  return res.status(200).json({ currentItens: product, page });
 });
 
 export default router;
