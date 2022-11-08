@@ -4,18 +4,8 @@ import { Product } from "../models/Product.js";
 const router = Router();
 
 router.get("/", async (req, res) => {
-  let { limit, offset } = req.query;
-
-  limit = Number(limit);
-  offset = Number(offset);
-
-  if (!limit) {
-    limit = 12;
-  }
-
-  if (!offset) {
-    offset = 0;
-  }
+  const limit = Number(req.query.limit || 12);
+  const offset = Number(req.query.offset || 0);
 
   const count = await Product.countDocuments();
   const product = await Product.find()
@@ -37,24 +27,18 @@ router.get("/product/:id", async (req, res) => {
 });
 
 router.get("/search", async (req, res) => {
-  let { limit, offset, q } = req.query;
+  const limit = Number(req.query.limit || 12);
+  const offset = Number(req.query.offset || 0);
+  const q = req.query.q;
 
-  limit = Number(limit);
-  offset = Number(offset);
+  const count = await Product.find({
+    $or: [
+      { title: { $regex: q } },
+      { description: { $regex: q } },
+      { price: q },
+    ],
+  });
 
-  if (!limit) {
-    limit = 12;
-  }
-
-  if (!offset) {
-    offset = 0;
-  }
-
-  if (!q) {
-    q = "";
-  }
-
-  const count = await Product.countDocuments();
   const product = await Product.find({
     $or: [
       { title: { $regex: q } },
@@ -66,7 +50,7 @@ router.get("/search", async (req, res) => {
     .skip(offset)
     .limit(limit);
 
-  const page = Math.ceil(Array(count).length / limit);
+  const page = Math.ceil(count.length / limit);
 
   return res.status(200).json({ currentItens: product, page });
 });
