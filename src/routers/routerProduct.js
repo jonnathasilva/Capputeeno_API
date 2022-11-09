@@ -31,7 +31,7 @@ router.get("/search", async (req, res) => {
   const offset = Number(req.query.offset || 0);
   const q = req.query.q;
 
-  const count = await Product.find({
+  const count = await Product.countDocuments({
     $or: [
       { title: { $regex: q } },
       { description: { $regex: q } },
@@ -50,7 +50,7 @@ router.get("/search", async (req, res) => {
     .skip(offset)
     .limit(limit);
 
-  const page = Math.ceil(count.length / limit);
+  const page = Math.ceil(Array(count).length / limit);
 
   return res.status(200).json({ currentItens: product, page });
 });
