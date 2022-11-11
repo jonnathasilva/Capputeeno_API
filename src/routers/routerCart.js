@@ -33,6 +33,15 @@ router.post("/new", async (req, res) => {
       .json({ message: "Produto já esta no nosso banco de dados" });
   }
 
+  const getcart = await Cart.findOne({ userId: "1" });
+
+  if (getcart) {
+    getcart.product.push(id);
+    getcart.save();
+
+    return res.status(200).json(getcart);
+  }
+
   const cart = await Cart.create({ product: id });
 
   return res.status(200).json(cart);
