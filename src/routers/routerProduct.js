@@ -35,6 +35,7 @@ router.get("/search", async (req, res) => {
     $or: [
       { title: { $regex: q } },
       { description: { $regex: q } },
+      { category: { $regex: q } },
       { price: q },
     ],
   });
@@ -43,6 +44,7 @@ router.get("/search", async (req, res) => {
     $or: [
       { title: { $regex: q } },
       { description: { $regex: q } },
+      { category: { $regex: q } },
       { price: q },
     ],
   })
