@@ -4,14 +4,14 @@ import { Product } from "../models/Product.js";
 const router = Router();
 
 router.get("/", async (req, res) => {
-  const limit = Number(req.query.limit || 12);
-  const offset = Number(req.query.offset || 0);
+  const limit = parseInt(req.query.limit) || 12;
+  const offset = parseInt(req.query.offset) || 0;
 
   const count = await Product.countDocuments();
   const product = await Product.find()
     .sort({ _id: -1 })
-    .skip(offset)
-    .limit(limit);
+    .limit(12)
+    .skip(offset * limit);
 
   const page = Math.ceil(Array(count).length / limit);
 
