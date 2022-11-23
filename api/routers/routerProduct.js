@@ -3,21 +3,6 @@ import { Product } from "../models/Product.js";
 
 const router = Router();
 
-router.get("/", async (req, res) => {
-  const limit = parseInt(req.query.limit) || 12;
-  const offset = parseInt(req.query.offset) || 0;
-
-  const count = await Product.countDocuments();
-  const product = await Product.find()
-    .sort({ _id: -1 })
-    .limit(12)
-    .skip(offset * limit);
-
-  const page = Math.ceil(Array(count).length / limit);
-
-  return res.status(200).json({ currentItens: product, page });
-});
-
 router.get("/product/:id", async (req, res) => {
   const id = req.params.id;
 
@@ -26,10 +11,10 @@ router.get("/product/:id", async (req, res) => {
   return res.status(200).json(product);
 });
 
-router.get("/search", async (req, res) => {
-  const limit = Number(req.query.limit || 12);
-  const offset = Number(req.query.offset || 0);
-  const q = req.query.q;
+router.get("/", async (req, res) => {
+  const limit = parseInt(req.query.limit) || 12;
+  const offset = parseInt(req.query.offset) || 0;
+  const q = req.query.q || "";
 
   const count = await Product.countDocuments({
     $or: [
@@ -49,8 +34,8 @@ router.get("/search", async (req, res) => {
     ],
   })
     .sort({ _id: -1 })
-    .skip(offset)
-    .limit(limit);
+    .limit(limit)
+    .skip(offset * limit);
 
   const page = Math.ceil(Array(count).length / limit);
 
